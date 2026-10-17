@@ -53,9 +53,10 @@ const inTab=(it,t)=>t==='새 공고'?isRecent4(it):it.tab===t;
 const st={tab:'새 공고',q:'',f:{re:false,rec:false,hot:false,pps:false},sort:'dl'};
 const $=s=>document.querySelector(s);
 const esc=t=>String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function pd(s){if(!s)return null;const m=String(s).match(/(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/);if(!m)return null;return new Date(+m[1],m[2]-1,+m[3],m[4]?+m[4]:23,m[5]?+m[5]:59);}
+function pd(s){if(!s)return null;const m=String(s).match(/(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/);if(!m)return null;return new Date(Date.UTC(+m[1],m[2]-1,+m[3],m[4]?+m[4]:23,m[5]?+m[5]:59)-9*36e5);} // 데이터 시각은 KST로 해석(기기 시간대와 무관)
 const NOW=new Date();const REF=pd(META.updated)||NOW;
-function dday(s){const d=pd(s);if(!d)return null;const a=new Date(NOW.getFullYear(),NOW.getMonth(),NOW.getDate()),b=new Date(d.getFullYear(),d.getMonth(),d.getDate());return{n:Math.round((b-a)/864e5),past:d<NOW};}
+const kday=t=>Math.floor((t.getTime()+9*36e5)/864e5); // KST 기준 날짜 번호
+function dday(s){const d=pd(s);if(!d)return null;return{n:kday(d)-kday(NOW),past:d<NOW};}
 function won(n){if(!n)return '';const e=Math.floor(n/1e8),m=Math.floor(n%1e8/1e4);if(e&&m)return e.toLocaleString()+'억 '+m.toLocaleString()+'만원';if(e)return e.toLocaleString()+'억원';if(m)return m.toLocaleString()+'만원';return n.toLocaleString()+'원';}
 function recDl(it){const m=(it.rec||'').match(/마감 (\d{4}-\d{2}-\d{2})/);return m?m[1]:'';}
 function isRec(it){if(!/^모집중/.test(it.rec||''))return false;const d=pd(recDl(it));return !d||d>=NOW;}
